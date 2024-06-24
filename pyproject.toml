@@ -1,0 +1,14 @@
+[project]
+name = "comfyui-showrunner-utils"
+description = "Comfyui Custom Nodes for Showrunner"
+version = "1.0.0"
+license = "LICENSE"
+
+[project.urls]
+Repository = "https://github.com/fablestudio/ComfyUI-Showrunner-Utils"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "ComfyUI-Showrunner-Utils"
+Icon = ""
