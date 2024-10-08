@@ -26,11 +26,11 @@ class RenderOpenStreetMapTile:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "center_lat*1000": (
+                "center_lat": (
                     "INT",
                     {"default": 37774, "min": -90000, "max": 90000},
                 ),  # Latitude multiplied by 1000
-                "center_lon*1000": (
+                "center_lon": (
                     "INT",
                     {"default": -122419, "min": -180000, "max": 180000},
                 ),  # Longitude multiplied by 1000
