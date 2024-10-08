@@ -71,7 +71,3 @@ class AlignFace:
             transformed_image[c] = torch.from_numpy(rotated_channel)
 
         return (transformed_image,)
-
-
-NODE_CLASS_MAPPINGS = {"AlignFace": AlignFace}
-NODE_DISPLAY_NAME_MAPPINGS = {"AlignFace": "Align Face"}
