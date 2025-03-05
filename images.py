@@ -5,6 +5,7 @@ from PIL import ImageFont, ImageDraw, Image
 from torchvision.transforms.functional import to_pil_image
 import matplotlib.font_manager as fm
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from mypy.typeshed.stdlib._typeshed import SupportsDunderGT, SupportsDunderLT
 
