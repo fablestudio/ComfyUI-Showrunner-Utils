@@ -26,8 +26,8 @@ class SR_AlphaCropAndPositionImage:
             }
         }
 
-    RETURN_TYPES = ("IMAGE", "MASK", "INT", "INT")
-    RETURN_NAMES = ("image", "mask", "width", "height")
+    RETURN_TYPES = ("IMAGE", "INT", "INT")
+    RETURN_NAMES = ("image", "width", "height")
 
     FUNCTION = "crop"
     CATEGORY = "image/processing"
@@ -35,7 +35,6 @@ class SR_AlphaCropAndPositionImage:
     def crop(self, image, maintain_aspect, left_padding: int = 0, right_padding: int = 0, top_padding: int = 0, bottom_padding: int = 0):
         cropped_images = []
         cropped_masks = []
-        alpha_images = []
 
         for img in image:
             alpha = img[..., 3]
@@ -53,20 +52,14 @@ class SR_AlphaCropAndPositionImage:
             if ymin is None or xmin is None:
                 cropped_images.append(img)
                 cropped_masks.append(torch.zeros_like(alpha))
-                alpha_images.append(img)
                 continue
-
-            ymin = max(0, ymin - top_padding)
-            ymax = min(height, ymax + bottom_padding)
-            xmin = max(0, xmin - left_padding)
-            xmax = min(width, xmax + right_padding)
 
             cropped = img[ymin:ymax, xmin:xmax, :4]
             cropped_mask = alpha[ymin:ymax, xmin:xmax]
 
             # Apply padding to the cropped image
-            padded_height = ymax - ymin + top_padding + bottom_padding
-            padded_width = xmax - xmin + left_padding + right_padding
+            padded_height = (ymax - ymin) + top_padding + bottom_padding
+            padded_width = (xmax - xmin) + left_padding + right_padding
 
             if maintain_aspect == "True":
                 if padded_height > padded_width:
@@ -86,10 +79,10 @@ class SR_AlphaCropAndPositionImage:
             padded_mask = torch.zeros((padded_height, padded_width), dtype=alpha.dtype)
             padded_mask[top_padding:top_padding + (ymax - ymin), left_padding:left_padding + (xmax - xmin)] = cropped_mask
 
+            cropped_images.append(padded_image)
             cropped_masks.append(padded_mask)
-            alpha_images.append(padded_image)
 
-        return alpha_images, cropped_masks, xmax - xmin + left_padding + right_padding, ymax - ymin + top_padding + bottom_padding
+        return cropped_images, cropped_masks, padded_width, padded_height
     
     def _find_boundary(self, arr):
         nz = torch.nonzero(arr)
