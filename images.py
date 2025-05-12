@@ -161,3 +161,38 @@ class SR_ShrinkImage:
             output_images.append(resized_img_np)
 
         return (output_images,)
+
+
+class SR_PadMask:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "mask": ("MASK",),
+                "top_padding": ("INT", {"default": 0, "min": 0}),
+                "bottom_padding": ("INT", {"default": 0, "min": 0}),
+                "left_padding": ("INT", {"default": 0, "min": 0}),
+                "right_padding": ("INT", {"default": 0, "min": 0}),
+            }
+        }
+
+    RETURN_TYPES = ("MASK",)
+    RETURN_NAMES = ("Padded_Mask",)
+    FUNCTION = "pad_mask"
+    CATEGORY = "image/processing"
+
+    def pad_mask(self, mask, top_padding, bottom_padding, left_padding, right_padding):
+        padded_mask = torch.zeros(
+            (mask.shape[0] + top_padding + bottom_padding, 
+             mask.shape[1] + left_padding + right_padding, 
+             mask.shape[2]),
+            dtype=mask.dtype
+        )
+        
+        padded_mask[top_padding:top_padding + mask.shape[0], 
+                    left_padding:left_padding + mask.shape[1]] = mask
+        
+        return (padded_mask,)
+    
+
+    
