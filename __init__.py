@@ -1,12 +1,9 @@
 from .align_face_node import AlignFace
 from .generate_timestamp import GenerateTimestamp
 from .most_common_colors import GetMostCommonColors
-from .images import SR_AlphaCropAndPositionImage, SR_ShrinkImage, SR_PadMask
+from .images import SR_AlphaCropAndPositionImage, SR_ShrinkImage, SR_PadMask, SR_LoadImageFromUrl
 from .openai import SR_Image2Text
-
-# from .read_image_node import ReadImage
-# from .render_open_street_view_tile import RenderOpenStreetMapTile
-
+from .image_composite import SR_ImageCompositeAbsoluteByContainer
 
 NODE_CLASS_MAPPINGS = {
     "AlignFace": AlignFace,
@@ -16,7 +13,9 @@ NODE_CLASS_MAPPINGS = {
     "Shrink Image": SR_ShrinkImage,    # "ReadImage": ReadImage,
     "PadMask": SR_PadMask,
     "OpenAI Image 2 Text": SR_Image2Text,
-    # "RenderOpenStreetMapTile": RenderOpenStreetMapTile,
+    "ImageCompositeAbsoluteByContainer": SR_ImageCompositeAbsoluteByContainer,
+    "LoadImageFromUrl": SR_LoadImageFromUrl,
+
 }
 
 NODE_DISPLAY_NAMES_MAPPINGS = {
@@ -27,8 +26,8 @@ NODE_DISPLAY_NAMES_MAPPINGS = {
     "Shrink Image": "Shrink Image",
     "PadMask": "Pad Mask",
     "OpenAI Image 2 Text": "OpenAI Image 2 Text",
-    # "ReadImageTest": "Read Image",
-    # "RenderOpenStreetMapTile": "Render OpenStreetMap Tile",
+    "ImageCompositeAbsoluteByContainer": "Image Composite Absolute By Container",
+    "LoadImageFromUrl": "Load Image From URL",
 }
 
 __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]

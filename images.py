@@ -1,7 +1,9 @@
 import torch
+import os
 import numpy as np
+import requests
 
-from PIL import ImageFont, ImageDraw, Image
+from PIL import ImageFont, ImageDraw, Image, ImageOps
 from torchvision.transforms.functional import to_pil_image
 import matplotlib.font_manager as fm
 
@@ -9,7 +11,23 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from mypy.typeshed.stdlib._typeshed import SupportsDunderGT, SupportsDunderLT
 
-from PIL import Image
+def pil2tensor(images: Image.Image | list[Image.Image]) -> torch.Tensor:
+    """Converts a PIL Image or a list of PIL Images to a tensor."""
+
+    def single_pil2tensor(image: Image.Image) -> torch.Tensor:
+        np_image = np.array(image).astype(np.float32) / 255.0
+        if np_image.ndim == 2:  # Grayscale
+            return torch.from_numpy(np_image).unsqueeze(0)  # (1, H, W)
+        else:  # RGB or RGBA
+            return torch.from_numpy(np_image).unsqueeze(0)  # (1, H, W, C)
+
+    if isinstance(images, Image.Image):
+        return single_pil2tensor(images)
+    else:
+        return torch.cat([single_pil2tensor(img) for img in images], dim=0)
+
+
+
 
 #Code from https://github.com/dzqdzq/ComfyUI-crop-alpha
 class SR_AlphaCropAndPositionImage:
@@ -196,3 +214,41 @@ class SR_PadMask:
     
 
     
+#Code From https://github.com/melMass/comfy_mtb
+class SR_LoadImageFromUrl:
+    """Load an image from the given URL"""
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "url": (
+                    "STRING",
+                    {
+                        "default": ""
+                    },
+                ),
+            }
+        }
+
+    RETURN_TYPES = ("IMAGE", "STRING", "STRING")
+    RETURN_NAMES = ("IMAGE", "Image_Filename", "Image_Filename_No_Ext")
+    FUNCTION = "load"
+    CATEGORY = "images"
+
+    def load(self, url):
+        # Get the image from the url
+        response = requests.get(url, stream=True)
+        image = Image.open(response.raw)
+        image = ImageOps.exif_transpose(image)
+
+        # Extract filename from URL
+        filename = os.path.basename(url)
+        filename_no_ext = os.path.splitext(filename)[0]
+
+        return (
+            pil2tensor(image),
+            filename,
+            filename_no_ext
+        )
+
