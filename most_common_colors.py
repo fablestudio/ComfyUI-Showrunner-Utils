@@ -7,7 +7,15 @@ class GetMostCommonColors:
 
     For single images: Returns the most common colors from that image.
     For batched images: Returns the most common colors for each image individually,
-    with results separated by newlines (one line per image in the batch).
+    with RGB results separated by newlines (one line per image) and hex colors
+    concatenated using the specified delimiter.
+
+    The hex_delimiter parameter allows customization of how hex colors are joined:
+    - "-" for dash separation (default)
+    - "_" for underscore separation
+    - "\\n" for newline separation
+    - " " for space separation
+    - Any other string as needed
 
     Supports both single images and batched images from nodes like CR_BatchProcessSwitch.
     """
@@ -35,6 +43,13 @@ class GetMostCommonColors:
                         "tooltip": "Comma-separated list of colors to exclude from the output",
                     },
                 ),
+                "hex_delimiter": (
+                    "STRING",
+                    {
+                        "default": "-",
+                        "tooltip": "Delimiter to separate hex colors (e.g., '-', '_', '\\n', ' ', etc.)",
+                    },
+                ),
             },
         }
 
@@ -51,6 +66,7 @@ class GetMostCommonColors:
         input_image: torch.Tensor,
         num_colors: int = 5,
         exclude_colors: str = "",
+        hex_delimiter: str = "-",
     ) -> tuple[str, ...]:
         # Process exclude colors
         if exclude_colors.strip():
@@ -59,6 +75,9 @@ class GetMostCommonColors:
             ]
         else:
             exclude_list = []
+
+        # Handle escape sequences in delimiter
+        delimiter = hex_delimiter.replace("\\n", "\n").replace("\\t", "\t")
 
         # Handle both single images and batched images
         # input_image shape: [batch, height, width, channels] or [height, width, channels]
@@ -71,18 +90,25 @@ class GetMostCommonColors:
             for i in range(batch_size):
                 single_image = input_image[i]  # Get single image from batch
                 rgb_colors, hex_colors = self._process_single_image(
-                    single_image, num_colors, exclude_list
+                    single_image, num_colors, exclude_list, delimiter
                 )
                 all_rgb_colors.append(rgb_colors)
                 all_hex_colors.append(hex_colors)
 
             # Join results with newlines to separate each image's results
-            return ("\n".join(all_rgb_colors), "\n".join(all_hex_colors))
+            return (
+                "\n".join(all_rgb_colors),
+                delimiter.join(
+                    [color for colors in all_hex_colors for color in colors.split(", ")]
+                ),
+            )
         else:  # Single image
-            return self._process_single_image(input_image, num_colors, exclude_list)
+            return self._process_single_image(
+                input_image, num_colors, exclude_list, delimiter
+            )
 
     def _process_single_image(
-        self, image: torch.Tensor, num_colors: int, exclude_list: list
+        self, image: torch.Tensor, num_colors: int, exclude_list: list, delimiter: str
     ) -> tuple[str, str]:
         """Process a single image and return its most common colors."""
         # Convert image to pixels
@@ -119,4 +145,4 @@ class GetMostCommonColors:
             rgb_colors.append(rgb)
             hex_colors.append(hex_color)
 
-        return (", ".join(rgb_colors), ", ".join(hex_colors))
+        return (", ".join(rgb_colors), delimiter.join(hex_colors))
