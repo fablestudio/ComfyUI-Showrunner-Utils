@@ -254,39 +254,58 @@ class SR_LoadImageFromUrl:
 
 
 
-class SR_CalculateBottomAlphaDistance:
-    """Calculate the distance from the bottom of the image to the bottom of the alpha channel"""
+class SR_AdjustBottomAlphaDistance:
+    """Adjust the distance from the bottom of the image to the bottom of the alpha channel"""
 
     @classmethod
     def INPUT_TYPES(cls):
         return {
             "required": {
                 "image": ("IMAGE",),
+                "max_distance": ("INT", {"default": 50, "min": 0, "max": 1000, "step": 1}),
             }
         }
 
-    RETURN_TYPES = ("INT",)
-    RETURN_NAMES = ("Distance",)
-    FUNCTION = "calculate_distance"
+    RETURN_TYPES = ("IMAGE",)
+    RETURN_NAMES = ("image",)
+    FUNCTION = "adjust_distance"
     CATEGORY = "images"
 
-    def calculate_distance(self, image):
+    def adjust_distance(self, image, max_distance):
         # Accepts a list of images or a single image tensor
-        if isinstance(image, list) or (hasattr(image, 'ndim') and image.ndim == 4):
-            # If batch dimension exists, use the first image in the batch
-            image = image[0]
-        if image.ndim == 3 and image.shape[2] >= 4:
-            alpha_channel = image[..., 3]
-            # Move to cpu and convert to numpy for reliable processing
-            alpha_np = alpha_channel.detach().cpu().numpy()
-            # No need to normalize if values are already in [0,1]
-            mask = alpha_np > 0.01
-            # If all alpha is zero, return full height
-            if not mask.any():
-                return (image.shape[0],)
-            for y in range(mask.shape[0] - 1, -1, -1):
-                if mask[y, :].any():
-                    return (mask.shape[0] - y - 1,)
-        # If no alpha or no nonzero alpha found, return full height
-        return (0,)
+        adjusted_images = []
+
+        # Normalize input to a list of images
+        if isinstance(image, list):
+            images = image
+        elif hasattr(image, 'ndim') and image.ndim == 4:
+            images = [img for img in image]
+        else:
+            images = [image]
+
+        for img in images:
+            if img.ndim == 3 and img.shape[2] >= 4:
+                alpha_channel = img[..., 3]
+                alpha_np = alpha_channel.detach().cpu().numpy()
+                mask = alpha_np > 0.01
+                if not mask.any():
+                    # No alpha, leave unchanged
+                    adjusted_images.append(img)
+                    continue
+                # Find the lowest row with nonzero alpha
+                for y in range(mask.shape[0] - 1, -1, -1):
+                    if mask[y, :].any():
+                        bottom_alpha_row = y
+                        break
+                distance = mask.shape[0] - bottom_alpha_row - 1
+                if distance > max_distance:
+                    # Crop from the bottom so only max_distance remains
+                    crop_bottom = mask.shape[0] - (distance - max_distance)
+                    img_cropped = img[:crop_bottom, :, :]
+                    adjusted_images.append(img_cropped)
+                else:
+                    adjusted_images.append(img)
+            else:
+                adjusted_images.append(img)
+        return (adjusted_images,)
 
