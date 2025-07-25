@@ -252,3 +252,41 @@ class SR_LoadImageFromUrl:
             filename_no_ext
         )
 
+
+
+class SR_CalculateBottomAlphaDistance:
+    """Calculate the distance from the bottom of the image to the bottom of the alpha channel"""
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "image": ("IMAGE",),
+            }
+        }
+
+    RETURN_TYPES = ("INT",)
+    RETURN_NAMES = ("Distance",)
+    FUNCTION = "calculate_distance"
+    CATEGORY = "images"
+
+    def calculate_distance(self, image):
+        # Accepts a list of images or a single image tensor
+        if isinstance(image, list) or (hasattr(image, 'ndim') and image.ndim == 4):
+            # If batch dimension exists, use the first image in the batch
+            image = image[0]
+        if image.ndim == 3 and image.shape[2] >= 4:
+            alpha_channel = image[..., 3]
+            # Move to cpu and convert to numpy for reliable processing
+            alpha_np = alpha_channel.detach().cpu().numpy()
+            # No need to normalize if values are already in [0,1]
+            mask = alpha_np > 0.01
+            # If all alpha is zero, return full height
+            if not mask.any():
+                return (image.shape[0],)
+            for y in range(mask.shape[0] - 1, -1, -1):
+                if mask[y, :].any():
+                    return (mask.shape[0] - y - 1,)
+        # If no alpha or no nonzero alpha found, return full height
+        return (0,)
+
