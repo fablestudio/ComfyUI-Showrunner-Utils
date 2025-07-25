@@ -4,7 +4,7 @@ from .most_common_colors import GetMostCommonColors
 from .images import SR_AlphaCropAndPositionImage, SR_ShrinkImage, SR_PadMask, SR_LoadImageFromUrl
 from .openai import SR_Image2Text
 from .image_composite import SR_ImageCompositeAbsoluteByContainer
-from .images import SR_CalculateBottomAlphaDistance
+from .images import SR_AdjustBottomAlphaDistance
 
 NODE_CLASS_MAPPINGS = {
     "AlignFace": AlignFace,
@@ -16,7 +16,7 @@ NODE_CLASS_MAPPINGS = {
     "OpenAI Image 2 Text": SR_Image2Text,
     "ImageCompositeAbsoluteByContainer": SR_ImageCompositeAbsoluteByContainer,
     "LoadImageFromUrl": SR_LoadImageFromUrl,
-    "CalculateBottomAlphaDistance": SR_CalculateBottomAlphaDistance,
+    "AdjustBottomAlphaDistance": SR_AdjustBottomAlphaDistance,
 
 }
 
@@ -30,7 +30,7 @@ NODE_DISPLAY_NAMES_MAPPINGS = {
     "OpenAI Image 2 Text": "OpenAI Image 2 Text",
     "ImageCompositeAbsoluteByContainer": "Image Composite Absolute By Container",
     "LoadImageFromUrl": "Load Image From URL",
-    "CalculateBottomAlphaDistance": "Calculate Bottom Alpha Distance",
+    "AdjustBottomAlphaDistance": "Adjust Bottom Alpha Distance",
 }
 
 __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
