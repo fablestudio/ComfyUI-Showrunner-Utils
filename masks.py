@@ -2,7 +2,7 @@
 
 import torch
 import numpy as np
-import torch.nn.functional as torchfn
+import torch.nn.functional as F
 import torchvision.transforms.functional as TF
 import cv2
 
@@ -46,7 +46,7 @@ class SR_MaskMorphologyNode:
         kernel_size = 1 + distance * 2
         # Add the channels dimension
         mask = mask.unsqueeze(1)
-        out = torchfn.max_pool2d(mask, kernel_size=kernel_size, stride=1, padding=kernel_size // 2).squeeze(1)
+        out = F.max_pool2d(mask, kernel_size=kernel_size, stride=1, padding=kernel_size // 2).squeeze(1)
         return out
 
 
@@ -59,53 +59,45 @@ class SR_OutlineMask:
         return {
             "required": {
                 "mask": ("MASK",),
-                "distance": ("INT", {"default": 5, "min": 0, "max": 128, "step": 1})
+                "distance": ("INT", {"default": 1, "min": 1, "max": 20, "step": 1})
             },
         }
 
     RETURN_TYPES = ("MASK",)
     FUNCTION = "outline"
-
     CATEGORY = "Showrunner Nodes"
 
     def outline(self, mask, distance):
-        mask1 = tensor2mask(self.dilate(mask, distance))
-        mask2 = tensor2mask(self.erode(mask, distance))
-        mask1 = mask1.cpu()
-        mask2 = mask2.cpu()
-        cv2_mask1 = np.array(mask1) * 255
-        cv2_mask2 = np.array(mask2) * 255
-
-        if cv2_mask1.shape == cv2_mask2.shape:
-            cv2_mask = cv2.subtract(cv2_mask1, cv2_mask2)
-            return torch.clamp(torch.from_numpy(cv2_mask) / 255.0, min=0, max=1)
+        if mask.dim() == 3:
+            outlines = []
+            for i in range(mask.shape[0]):
+                outlines.append(self._outline_single(mask[i], distance))
+            return (torch.stack(outlines, dim=0),)
         else:
-            # do nothing - incompatible mask shape: mostly empty mask
-            return mask1
-        
-    def erode(self, mask, distance):
-        return 1. - self.dilate(1. - mask, distance)
+            return (self._outline_single(mask, distance),)
 
-    def dilate(self, mask, distance):
-        kernel_size = 1 + distance * 2
-        # Add the channels dimension
-        mask = mask.unsqueeze(1)
-        out = torchfn.max_pool2d(mask, kernel_size=kernel_size, stride=1, padding=kernel_size // 2).squeeze(1)
-        return out
+    def _outline_single(self, mask, distance):
+        mask_bin = (mask > 0.5).float()
+        eroded = self._erode(mask_bin, distance)
+        outline = mask_bin - eroded
+        outline = outline.clamp(0, 1)
+        # Zero out outline touching the border
+        outline[:distance, :] = 0
+        outline[-distance:, :] = 0
+        outline[:, :distance] = 0
+        outline[:, -distance:] = 0
+        return outline
 
-    def subtract_masks(mask1, mask2):
-        mask1 = mask1.cpu()
-        mask2 = mask2.cpu()
-        cv2_mask1 = np.array(mask1) * 255
-        cv2_mask2 = np.array(mask2) * 255
+    def _erode(self, mask, distance):
+        kernel_size = 2 * distance + 1
+        kernel = torch.ones(1, 1, kernel_size, kernel_size, device=mask.device, dtype=mask.dtype)
+        mask_unsq = mask.unsqueeze(0).unsqueeze(0)
+        eroded = F.conv2d(mask_unsq, kernel, padding=distance) == kernel.numel()
+        return eroded.float().squeeze(0).squeeze(0)
 
-        if cv2_mask1.shape == cv2_mask2.shape:
-            cv2_mask = cv2.subtract(cv2_mask1, cv2_mask2)
-            return torch.clamp(torch.from_numpy(cv2_mask) / 255.0, min=0, max=1)
-        else:
-            # do nothing - incompatible mask shape: mostly empty mask
-            return mask1
-    
+
+
+
 def tensor2mask(t: torch.Tensor) -> torch.Tensor:
     size = t.size()
     if (len(size) < 4):
