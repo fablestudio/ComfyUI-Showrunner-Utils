@@ -73,7 +73,7 @@ class SR_OutlineMask:
 
     CATEGORY = "Showrunner Nodes"
 
-    def outline(self, mask, distance, op):
+    def outline(self, mask, distance):
         mask1 = self.dilate(mask, distance)
         mask2 = self.erode(mask, distance)
         mask = self.subtract_masks(mask1, mask2)
