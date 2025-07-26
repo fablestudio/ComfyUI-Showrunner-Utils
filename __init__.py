@@ -8,6 +8,7 @@ from .images import SR_AdjustBottomAlphaDistance
 from .masks import SR_MaskMorphologyNode, SR_OutlineMask
 from .textutils import SR_ShowrunnerFilename
 from .seed import SR_Seed
+from .lora import SR_LoraLoaderWithName, SR_LoraLoaderModelWithNameOnly
 
 NODE_CLASS_MAPPINGS = {
     "AlignFace": AlignFace,
@@ -24,6 +25,8 @@ NODE_CLASS_MAPPINGS = {
     "ShowrunnerFilename": SR_ShowrunnerFilename,
     "ShowrunnerSeed": SR_Seed,
     "CreateOutlineMask": SR_OutlineMask,
+    "LoraLoaderWithName": SR_LoraLoaderWithName,
+    "LoraLoaderModelWithNameOnly": SR_LoraLoaderModelWithNameOnly,
 
 }
 
@@ -42,6 +45,8 @@ NODE_DISPLAY_NAMES_MAPPINGS = {
     "ShowrunnerFilename": "Showrunner Filename",
     "ShowrunnerSeed": "Seed",
     "CreateOutlineMask": "Create Outline Mask",
+    "LoraLoaderWithName": "Load LoRA",
+    "LoraLoaderModelWithNameOnly": "Load LoRA Model Only",
 }
 
 __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
