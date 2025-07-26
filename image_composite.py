@@ -46,7 +46,7 @@ class SR_ImageCompositeAbsolute:
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "node"
-    CATEGORY = "image/composite"
+    CATEGORY = "Showrunner Nodes"
 
     def node(
             self,
@@ -183,7 +183,7 @@ class SR_ImageCompositeAbsoluteByContainer:
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "node"
-    CATEGORY = "image/composite"
+    CATEGORY = "Showrunner Nodes"
 
     def node(
             self,
@@ -249,7 +249,7 @@ class SR_ImageCompositeRelative:
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "node"
-    CATEGORY = "image/composite"
+    CATEGORY = "Showrunner Nodes"
 
     def node(
             self,
@@ -336,7 +336,7 @@ class SR_ImageCompositeRelativeByContainer:
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "node"
-    CATEGORY = "image/composite"
+    CATEGORY = "Showrunner Nodes"
 
     def node(
             self,

@@ -12,7 +12,7 @@ class SR_Seed:
     RETURN_NAMES = ("seed", "number", "float", "int", "string")
     FUNCTION = "seed"
 
-    CATEGORY = "utils"
+    CATEGORY = "Showrunner Nodes"
 
     def seed(self, seed):
         return ({"seed": seed, }, seed, float(seed), int(seed), str(seed))

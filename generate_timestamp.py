@@ -28,7 +28,7 @@ class GenerateTimestamp:
             }
         }
 
-    CATEGORY = "CustomNodes/image"
+    CATEGORY = "Showrunner Nodes"
 
     RETURN_TYPES = ("STRING",)
     FUNCTION = "generate_timestamp"
