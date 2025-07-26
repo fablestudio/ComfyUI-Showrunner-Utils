@@ -78,8 +78,9 @@ class SR_OutlineMask:
 
     def _outline_single(self, mask, distance):
         mask_bin = (mask > 0.5).float()
+        dilated = self._dilate(mask_bin, distance)
         eroded = self._erode(mask_bin, distance)
-        outline = mask_bin - eroded
+        outline = dilated - eroded
         outline = outline.clamp(0, 1)
         # Zero out outline touching the border
         outline[:distance, :] = 0
@@ -94,6 +95,13 @@ class SR_OutlineMask:
         mask_unsq = mask.unsqueeze(0).unsqueeze(0)
         eroded = F.conv2d(mask_unsq, kernel, padding=distance) == kernel.numel()
         return eroded.float().squeeze(0).squeeze(0)
+
+    def _dilate(self, mask, distance):
+        kernel_size = 2 * distance + 1
+        kernel = torch.ones(1, 1, kernel_size, kernel_size, device=mask.device, dtype=mask.dtype)
+        mask_unsq = mask.unsqueeze(0).unsqueeze(0)
+        dilated = F.conv2d(mask_unsq, kernel, padding=distance) > 0
+        return dilated.float().squeeze(0).squeeze(0)
 
 
 
