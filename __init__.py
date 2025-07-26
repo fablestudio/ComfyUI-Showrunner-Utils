@@ -5,6 +5,8 @@ from .images import SR_AlphaCropAndPositionImage, SR_ShrinkImage, SR_PadMask, SR
 from .openai import SR_Image2Text
 from .image_composite import SR_ImageCompositeAbsoluteByContainer
 from .images import SR_AdjustBottomAlphaDistance
+from .masks import SR_MaskMorphologyNode
+from .textutils import SR_ShowrunnerFilename
 
 NODE_CLASS_MAPPINGS = {
     "AlignFace": AlignFace,
@@ -17,6 +19,8 @@ NODE_CLASS_MAPPINGS = {
     "ImageCompositeAbsoluteByContainer": SR_ImageCompositeAbsoluteByContainer,
     "LoadImageFromUrl": SR_LoadImageFromUrl,
     "AdjustBottomAlphaDistance": SR_AdjustBottomAlphaDistance,
+    "MaskMorphologyNode": SR_MaskMorphologyNode,
+    "ShowrunnerFilename": SR_ShowrunnerFilename,
 
 }
 
@@ -31,6 +35,8 @@ NODE_DISPLAY_NAMES_MAPPINGS = {
     "ImageCompositeAbsoluteByContainer": "Image Composite Absolute By Container",
     "LoadImageFromUrl": "Load Image From URL",
     "AdjustBottomAlphaDistance": "Adjust Bottom Alpha Distance",
+    "MaskMorphologyNode": "Mask Morphology Node",
+    "ShowrunnerFilename": "Showrunner Filename",
 }
 
 __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
