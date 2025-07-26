@@ -21,7 +21,7 @@ class SR_ShowrunnerFilename:
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("string",)
     FUNCTION = "concat"
-    CATEGORY = "text"
+    CATEGORY = "Showrunner Nodes"
 
     def concat(self, delimiter, clean_whitespace, prefix_timestamp, string1="", string2="", string3="", string4="", string5=""):
         strings = [string1, string2, string3, string4, string5]

@@ -48,7 +48,7 @@ class SR_AlphaCropAndPositionImage:
     RETURN_NAMES = ("image", "width", "height")
 
     FUNCTION = "crop"
-    CATEGORY = "image/processing"
+    CATEGORY = "Showrunner Nodes"
 
     def crop(self, image, maintain_aspect, left_padding: int = 0, right_padding: int = 0, top_padding: int = 0, bottom_padding: int = 0):
         cropped_images = []
@@ -137,7 +137,7 @@ class SR_ShrinkImage:
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "shrink_image"
-    CATEGORY = "image/processing"
+    CATEGORY = "Showrunner Nodes"
 
     def calculate_scale(self, img, mode, maintain_aspect, scale=None, width=None, height=None):
         if mode == "scale":
@@ -197,7 +197,7 @@ class SR_PadMask:
     RETURN_TYPES = ("MASK",)
     RETURN_NAMES = ("Padded_Mask",)
     FUNCTION = "pad_mask"
-    CATEGORY = "image/processing"
+    CATEGORY = "Showrunner Nodes"
 
     def pad_mask(self, mask, top_padding, bottom_padding, left_padding, right_padding):
         padded_mask = torch.zeros(
@@ -234,7 +234,7 @@ class SR_LoadImageFromUrl:
     RETURN_TYPES = ("IMAGE", "STRING", "STRING")
     RETURN_NAMES = ("IMAGE", "Image_Filename", "Image_Filename_No_Ext")
     FUNCTION = "load"
-    CATEGORY = "images"
+    CATEGORY = "Showrunner Nodes"
 
     def load(self, url):
         # Get the image from the url
@@ -269,7 +269,7 @@ class SR_AdjustBottomAlphaDistance:
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("image",)
     FUNCTION = "adjust_distance"
-    CATEGORY = "images"
+    CATEGORY = "Showrunner Nodes"
 
     def adjust_distance(self, image, max_distance):
         # Accepts a list of images or a single image tensor
@@ -299,10 +299,21 @@ class SR_AdjustBottomAlphaDistance:
                         break
                 distance = mask.shape[0] - bottom_alpha_row - 1
                 if distance > max_distance:
-                    # Crop from the bottom so only max_distance remains
-                    crop_bottom = mask.shape[0] - (distance - max_distance)
-                    img_cropped = img[:crop_bottom, :, :]
-                    adjusted_images.append(img_cropped)
+                    # Shift image up so only max_distance remains below alpha, fill top with alpha
+                    orig_height = img.shape[0]
+                    shift = distance - max_distance
+                    # Crop off shift rows from the bottom
+                    img_cropped = img[:orig_height - shift, :, :]
+                    # Pad shift rows at the top with zeros (alpha)
+                    pad = torch.zeros((shift, img.shape[1], img.shape[2]), dtype=img.dtype, device=img.device)
+                    img_adjusted = torch.cat([pad, img_cropped], dim=0)
+                    # Ensure output is same height as input
+                    if img_adjusted.shape[0] > orig_height:
+                        img_adjusted = img_adjusted[-orig_height:, :, :]
+                    elif img_adjusted.shape[0] < orig_height:
+                        pad2 = torch.zeros((orig_height - img_adjusted.shape[0], img.shape[1], img.shape[2]), dtype=img.dtype, device=img.device)
+                        img_adjusted = torch.cat([pad2, img_adjusted], dim=0)
+                    adjusted_images.append(img_adjusted)
                 else:
                     adjusted_images.append(img)
             else:

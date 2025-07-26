@@ -59,7 +59,7 @@ class GetMostCommonColors:
     )
     RETURN_NAMES = ("rgb_colors", "hex_colors")
     FUNCTION = "main"
-    CATEGORY = "image"
+    CATEGORY = "Showrunner Nodes"
 
     def main(
         self,

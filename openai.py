@@ -28,7 +28,7 @@ class SR_Image2Text:
 
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("text_out",)
-    CATEGORY = "openai"
+    CATEGORY = "Showrunner Nodes"
     FUNCTION = "caption"
 
     def caption(self, image_in, model, system_prompt, api_key, caption_prompt, max_tokens, temperature):

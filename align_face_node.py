@@ -20,7 +20,7 @@ class AlignFace:
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "align_face"
-    CATEGORY = "image/transform"
+    CATEGORY = "Showrunner Nodes"
 
     def align_face(self, image, pose_keypoints):
         # pose_keypoints is now a list of dictionaries, we'll use the first one
