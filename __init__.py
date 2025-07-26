@@ -7,6 +7,7 @@ from .image_composite import SR_ImageCompositeAbsoluteByContainer
 from .images import SR_AdjustBottomAlphaDistance
 from .masks import SR_MaskMorphologyNode
 from .textutils import SR_ShowrunnerFilename
+from .seed import SR_Seed
 
 NODE_CLASS_MAPPINGS = {
     "AlignFace": AlignFace,
@@ -21,6 +22,7 @@ NODE_CLASS_MAPPINGS = {
     "AdjustBottomAlphaDistance": SR_AdjustBottomAlphaDistance,
     "MaskMorphologyNode": SR_MaskMorphologyNode,
     "ShowrunnerFilename": SR_ShowrunnerFilename,
+    "SR_Seed": SR_Seed,
 
 }
 
@@ -37,6 +39,7 @@ NODE_DISPLAY_NAMES_MAPPINGS = {
     "AdjustBottomAlphaDistance": "Adjust Bottom Alpha Distance",
     "MaskMorphologyNode": "Mask Morphology Node",
     "ShowrunnerFilename": "Showrunner Filename",
+    "SR_Seed": "Seed",
 }
 
 __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
