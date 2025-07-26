@@ -5,9 +5,9 @@ class SR_ShowrunnerFilename:
     def INPUT_TYPES(cls):
         return {
             "optional": {
-                "string1": ("STRING", {"default": ""}),
-                "string2": ("STRING", {"default": ""}),
-                "string3": ("STRING", {"default": ""}),
+                "string1": ("STRING", {"default": "prompt"}),
+                "string2": ("STRING", {"default": "seed"}),
+                "string3": ("STRING", {"default": "model"}),
                 "string4": ("STRING", {"default": ""}),
                 "string5": ("STRING", {"default": ""}),
             },
